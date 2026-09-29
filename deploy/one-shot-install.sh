@@ -5,8 +5,9 @@
 #   2. Siapkan swap 4GB (karena RAM VPS cuma 4GB)
 #   3. Clone/update aplikasi Suaraku TTS
 #   4. Unduh suara dasar Piper (Indonesia + Inggris)
-#   5. Jalankan aplikasi lewat Docker
-#   6. Pasang Nginx + sertifikat HTTPS (Let's Encrypt) untuk domain di bawah
+#   5. Bersihkan sisa build Docker dari percobaan sebelumnya (hemat disk)
+#   6. Jalankan aplikasi lewat Docker
+#   7. Pasang Nginx + sertifikat HTTPS (Let's Encrypt) untuk domain di bawah
 #
 # Aman dijalankan berulang kali (idempotent) -- kalau ada langkah yang
 # gagal, perbaiki masalahnya lalu jalankan skrip ini lagi dari awal.
@@ -66,13 +67,22 @@ else
 fi
 
 echo "=============================================="
-echo "[5/6] Jalankan aplikasi (Docker)"
+echo "[5/7] Bersihkan sisa build Docker sebelumnya"
+echo "=============================================="
+echo "Ruang disk sebelum dibersihkan:"
+df -h / | tail -1
+docker system prune -af 2>/dev/null || true
+echo "Ruang disk setelah dibersihkan:"
+df -h / | tail -1
+
+echo "=============================================="
+echo "[6/7] Jalankan aplikasi (Docker)"
 echo "=============================================="
 cd "$APP_DIR/deploy"
 docker compose up -d --build
 
 echo "=============================================="
-echo "[6/6] Pasang Nginx + HTTPS untuk $DOMAIN"
+echo "[7/7] Pasang Nginx + HTTPS untuk $DOMAIN"
 echo "=============================================="
 dnf -y install nginx certbot python3-certbot-nginx
 
