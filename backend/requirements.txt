@@ -5,7 +5,12 @@ pydantic==2.10.3
 python-multipart==0.0.19
 
 # Base multilingual TTS (fast, CPU-friendly, natural prosody)
-piper-tts==1.2.0
+# 1.8.0, not the older 1.2.0: older piper-tts depended on the compiled
+# `piper-phonemize` package, which has no Linux wheel for Python 3.12 (only
+# up to 3.11) -- and this image is on 3.12 for Applio's sake. 1.8.0+ is the
+# OHF-Voice/piper1-gpl rewrite, which embeds espeak-ng directly and drops
+# that dependency entirely.
+piper-tts==1.8.0
 
 # Voice conversion itself (Applio, cloned + installed separately in the
 # Dockerfile) is not a Python import here -- app/voice_convert.py calls its
