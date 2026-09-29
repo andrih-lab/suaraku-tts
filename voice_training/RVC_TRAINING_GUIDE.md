@@ -54,14 +54,11 @@ https://github.com/RVC-Project/Retrieval-based-Voice-Conversion-WebUI
 
    Download kedua file ini ke komputer Anda.
 
-8. **Pasang ke VPS**: salin kedua file tersebut ke VPS Anda di
-   `models/rvc/my_voice.pth` dan `models/rvc/my_voice.index` (path persis
-   sesuai `backend/app/config.py`). Lihat `deploy/README.md` untuk cara
-   `scp` ke VPS.
-
-9. Restart container backend (`docker compose restart backend`) — log akan
-   menunjukkan `rvc_model_loaded: true` di `/api/health` kalau berhasil
-   dimuat.
+8. **Upload ke website**: buka `https://suara.andrihendrizal.com/upload.html`,
+   masukkan kode upload (dicetak di akhir proses instalasi VPS -- lihat
+   `deploy/README.md`), pilih kedua file, klik Upload. Tidak perlu masuk ke
+   VPS sama sekali, dan tidak perlu restart apa pun -- begitu upload
+   selesai, suara Anda langsung aktif untuk permintaan berikutnya.
 
 ## Kalau hasilnya kurang mirip
 

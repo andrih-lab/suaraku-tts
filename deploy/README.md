@@ -26,6 +26,10 @@ Kalau Anda tidak familiar dengan Linux/SSH, pakai jalur ini:
 5. Kalau di akhir skrip muncul pesan DNS belum mengarah ke server ini,
    perbaiki dulu DNS-nya (lihat di bawah), tunggu 5-30 menit, lalu jalankan
    ulang baris `certbot ...` yang ditampilkan skrip.
+6. Skrip juga mencetak **kode upload** (sekali, acak) di akhir prosesnya --
+   simpan/screenshot itu. Nanti dipakai di `https://suara.andrihendrizal.com/upload.html`
+   untuk mengaktifkan suara Anda sendiri (lihat `voice_training/RVC_TRAINING_GUIDE.md`
+   langkah terakhir) -- tanpa perlu masuk ke VPS lagi.
 
 ### Arahkan suara.andrihendrizal.com ke VPS ini (DNS di Netlify)
 
@@ -81,8 +85,10 @@ Ini akan mengunduh 4 file `.onnx` + `.onnx.json` ke folder ini.
 
 **RVC (suara Anda):** ikuti `voice_training/RECORDING_GUIDE.md` dan
 `voice_training/RVC_TRAINING_GUIDE.md` terlebih dahulu (training dilakukan
-di Google Colab, bukan di VPS). Setelah selesai, upload kedua file hasil
-training dari komputer Anda ke VPS:
+di Google Colab, bukan di VPS). Setelah selesai, cara termudah adalah
+upload kedua file lewat `https://suara.andrihendrizal.com/upload.html`
+(butuh kode upload -- lihat `echo "UPLOAD_TOKEN=..." > deploy/.env` di
+bawah kalau Anda deploy manual). Alternatif via terminal:
 
 ```bash
 scp my_voice.pth my_voice.index user@VPS_IP:~/suaraku-tts/models/rvc/
@@ -91,6 +97,14 @@ scp my_voice.pth my_voice.index user@VPS_IP:~/suaraku-tts/models/rvc/
 Tanpa file ini, aplikasi tetap jalan tapi hanya mengeluarkan suara Piper
 generik (belum mirip suara Anda) — berguna untuk tes awal bahwa server
 sudah jalan dengan benar.
+
+**Kode upload** (untuk halaman `/upload.html`) diambil dari `UPLOAD_TOKEN`
+di `deploy/.env`. Kalau Anda deploy manual (bukan lewat `one-shot-install.sh`,
+yang membuatnya otomatis), buat sendiri:
+
+```bash
+echo "UPLOAD_TOKEN=$(openssl rand -hex 16)" > ~/suaraku-tts/deploy/.env
+```
 
 ### 3. Jalankan aplikasi
 
@@ -131,6 +145,10 @@ server {
     listen 80;
     server_name suara.domainanda.com;
 
+    # Model suara (.pth) bisa puluhan-ratusan MB -- default Nginx (1MB)
+    # akan menolak upload tanpa ini.
+    client_max_body_size 600M;
+
     location / {
         proxy_pass http://127.0.0.1:8000;
         proxy_set_header Host $host;
@@ -155,7 +173,9 @@ dari localhost), karena publik seharusnya lewat Nginx di port 80/443.
 
 - **Update kode**: `git pull && docker compose up -d --build`
 - **Lihat log**: `docker compose logs -f backend`
-- **Restart** (mis. setelah ganti model RVC): `docker compose restart backend`
-- **Cek pemakaian RAM**: `docker stats` — kalau sering mentok di batas 3GB
-  (`mem_limit` di `docker-compose.yml`), pertimbangkan upgrade RAM VPS atau
-  kurangi beban lain di server yang sama.
+- **Ganti model suara**: upload lewat `/upload.html`, atau timpa langsung
+  file di `models/rvc/` -- tidak perlu restart, terbaca otomatis di
+  permintaan berikutnya.
+- **Cek pemakaian RAM**: `docker stats` — kalau sering penuh, VPS akan
+  memakai swap (lebih lambat tapi tidak crash); pertimbangkan upgrade RAM
+  kalau ini sering terjadi.

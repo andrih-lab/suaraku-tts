@@ -1,8 +1,9 @@
 import os
+import secrets
 from contextlib import asynccontextmanager
 from pathlib import Path
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import Response
 from fastapi.staticfiles import StaticFiles
@@ -58,6 +59,35 @@ def synthesize(req: TTSRequest) -> Response:
         raise HTTPException(500, f"Speech generation failed: {exc}") from exc
 
     return Response(content=audio, media_type="audio/wav")
+
+
+@app.post("/api/upload-voice-model")
+async def upload_voice_model(
+    token: str = Form(...),
+    pth_file: UploadFile = File(...),
+    index_file: UploadFile = File(...),
+) -> dict:
+    if not config.UPLOAD_TOKEN or not secrets.compare_digest(token, config.UPLOAD_TOKEN):
+        raise HTTPException(403, "Invalid upload token.")
+
+    if not pth_file.filename.endswith(".pth"):
+        raise HTTPException(400, "First file must be a .pth file.")
+    if not index_file.filename.endswith(".index"):
+        raise HTTPException(400, "Second file must be a .index file.")
+
+    for upload in (pth_file, index_file):
+        upload.file.seek(0, os.SEEK_END)
+        if upload.file.tell() > config.MAX_UPLOAD_SIZE_BYTES:
+            raise HTTPException(400, f"{upload.filename} is too large.")
+        upload.file.seek(0)
+
+    config.RVC_MODEL_PATH.parent.mkdir(parents=True, exist_ok=True)
+    config.RVC_MODEL_PATH.write_bytes(await pth_file.read())
+    config.RVC_INDEX_PATH.write_bytes(await index_file.read())
+
+    # No restart needed: voice_converter checks these paths fresh on every
+    # /api/tts request.
+    return {"status": "ok", "rvc_model_loaded": voice_converter.is_ready()}
 
 
 # Serve the static frontend (index.html, app.js, style.css) at "/".

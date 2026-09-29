@@ -5,9 +5,10 @@
 #   2. Siapkan swap 4GB (karena RAM VPS cuma 4GB)
 #   3. Clone/update aplikasi Suaraku TTS
 #   4. Unduh suara dasar Piper (Indonesia + Inggris)
-#   5. Bersihkan sisa build Docker dari percobaan sebelumnya (hemat disk)
-#   6. Jalankan aplikasi lewat Docker
-#   7. Pasang Nginx + sertifikat HTTPS (Let's Encrypt) untuk domain di bawah
+#   5. Buat kode rahasia untuk halaman upload model suara
+#   6. Bersihkan sisa build Docker dari percobaan sebelumnya (hemat disk)
+#   7. Jalankan aplikasi lewat Docker
+#   8. Pasang Nginx + sertifikat HTTPS (Let's Encrypt) untuk domain di bawah
 #
 # Aman dijalankan berulang kali (idempotent) -- kalau ada langkah yang
 # gagal, perbaiki masalahnya lalu jalankan skrip ini lagi dari awal.
@@ -22,7 +23,7 @@ APP_DIR="/root/suaraku-tts"
 echo "=============================================="
 echo "[1/6] Install Docker"
 echo "=============================================="
-dnf -y install dnf-plugins-core git curl
+dnf -y install dnf-plugins-core git curl openssl
 dnf config-manager --add-repo https://download.docker.com/linux/rhel/docker-ce.repo
 dnf -y install docker-ce docker-ce-cli containerd.io docker-compose-plugin
 systemctl enable --now docker
@@ -67,7 +68,20 @@ else
 fi
 
 echo "=============================================="
-echo "[5/7] Bersihkan sisa build Docker sebelumnya"
+echo "[5/8] Siapkan kode upload model suara"
+echo "=============================================="
+ENV_FILE="$APP_DIR/deploy/.env"
+if [ ! -f "$ENV_FILE" ]; then
+  UPLOAD_TOKEN_VALUE=$(openssl rand -hex 16)
+  echo "UPLOAD_TOKEN=$UPLOAD_TOKEN_VALUE" > "$ENV_FILE"
+  echo "Kode upload baru dibuat."
+else
+  echo "Kode upload sudah ada, lewati."
+fi
+UPLOAD_TOKEN_VALUE=$(grep '^UPLOAD_TOKEN=' "$ENV_FILE" | cut -d= -f2)
+
+echo "=============================================="
+echo "[6/8] Bersihkan sisa build Docker sebelumnya"
 echo "=============================================="
 echo "Ruang disk sebelum dibersihkan:"
 df -h / | tail -1
@@ -76,13 +90,13 @@ echo "Ruang disk setelah dibersihkan:"
 df -h / | tail -1
 
 echo "=============================================="
-echo "[6/7] Jalankan aplikasi (Docker)"
+echo "[7/8] Jalankan aplikasi (Docker)"
 echo "=============================================="
 cd "$APP_DIR/deploy"
 docker compose up -d --build
 
 echo "=============================================="
-echo "[7/7] Pasang Nginx + HTTPS untuk $DOMAIN"
+echo "[8/8] Pasang Nginx + HTTPS untuk $DOMAIN"
 echo "=============================================="
 dnf -y install nginx certbot python3-certbot-nginx
 
@@ -90,6 +104,10 @@ cat > /etc/nginx/conf.d/suaraku.conf <<NGINX
 server {
     listen 80;
     server_name $DOMAIN;
+
+    # Model suara (.pth) bisa puluhan-ratusan MB -- default Nginx (1MB)
+    # akan menolak upload tanpa ini.
+    client_max_body_size 600M;
 
     location / {
         proxy_pass http://127.0.0.1:8000;
@@ -113,6 +131,10 @@ if [ "$RESOLVED_IP" = "$SERVER_IP" ]; then
   certbot --nginx -d "$DOMAIN" --non-interactive --agree-tos -m "$CERTBOT_EMAIL" --redirect
   echo ""
   echo "SELESAI! Buka: https://$DOMAIN"
+  echo ""
+  echo "Kode upload model suara Anda (perlu ini nanti di https://$DOMAIN/upload.html):"
+  echo "  $UPLOAD_TOKEN_VALUE"
+  echo "Simpan baik-baik / screenshot halaman ini."
 else
   echo "Aplikasi sudah jalan, TAPI DNS $DOMAIN belum mengarah ke server ini."
   echo "  IP server ini   : $SERVER_IP"
@@ -125,6 +147,10 @@ else
   echo "memasang SSL:"
   echo ""
   echo "  certbot --nginx -d $DOMAIN --non-interactive --agree-tos -m $CERTBOT_EMAIL --redirect"
+  echo ""
+  echo "Kode upload model suara Anda (perlu ini nanti di halaman /upload.html):"
+  echo "  $UPLOAD_TOKEN_VALUE"
+  echo "Simpan baik-baik / screenshot halaman ini."
 fi
 echo "=============================================="
 

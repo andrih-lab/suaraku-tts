@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Upload Model Suara — Suaraku TTS</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="card">
+    <h1>Upload Model Suara Anda</h1>
+    <p class="subtitle">
+      Setelah training di Google Colab selesai, upload 2 file hasilnya di
+      sini. Tidak perlu masuk ke VPS.
+    </p>
+
+    <label for="token">Kode Upload</label>
+    <input type="password" id="token" placeholder="Kode rahasia dari hasil instalasi VPS" />
+
+    <label for="pth" style="margin-top:16px;">File model (.pth)</label>
+    <input type="file" id="pth" accept=".pth" />
+
+    <label for="index" style="margin-top:16px;">File index (.index)</label>
+    <input type="file" id="index" accept=".index" />
+
+    <button id="upload" style="margin-top:20px;">Upload</button>
+    <p id="status" class="status"></p>
+
+    <p class="subtitle" style="margin-top:24px;">
+      <a href="/">&larr; Kembali ke halaman utama</a>
+    </p>
+  </main>
+
+  <script src="upload.js"></script>
+</body>
+</html>

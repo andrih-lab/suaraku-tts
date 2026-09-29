@@ -33,3 +33,9 @@ RVC_PROTECT = float(os.environ.get("RVC_PROTECT", "0.33"))
 RVC_F0_METHOD = os.environ.get("RVC_F0_METHOD", "rmvpe")
 
 MAX_TEXT_LENGTH = int(os.environ.get("MAX_TEXT_LENGTH", "1000"))
+
+# Shared secret required by POST /api/upload-voice-model (see main.py). Set
+# via the UPLOAD_TOKEN env var (deploy/one-shot-install.sh generates one
+# automatically). Empty means the upload endpoint refuses every request.
+UPLOAD_TOKEN = os.environ.get("UPLOAD_TOKEN", "")
+MAX_UPLOAD_SIZE_BYTES = 500 * 1024 * 1024

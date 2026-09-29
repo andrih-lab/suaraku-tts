@@ -7,10 +7,13 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - ../models:/app/models:ro
+      # Writable (not :ro): /api/upload-voice-model saves your trained
+      # model files here directly from the browser.
+      - ../models:/app/models
     environment:
       - MODELS_DIR=/app/models
       - RVC_PITCH_SHIFT=${RVC_PITCH_SHIFT:-0}
+      - UPLOAD_TOKEN=${UPLOAD_TOKEN:-}
     # No hard mem_limit: voice conversion (Applio/torch) can use several GB
     # during inference. With the 4GB swap set up by setup-almalinux.sh, it's
     # safer to let it spill into swap (slower) than be OOM-killed mid-request
