@@ -1,0 +1,11 @@
+models/
+*.pth
+*.index
+*.onnx
+__pycache__/
+*.pyc
+.venv/
+venv/
+.env
+*.wav
+rekaman_suara_saya*/

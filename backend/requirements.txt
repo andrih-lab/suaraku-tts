@@ -1,0 +1,19 @@
+# Web server
+fastapi==0.115.6
+uvicorn[standard]==0.32.1
+pydantic==2.10.3
+python-multipart==0.0.19
+
+# Base multilingual TTS (fast, CPU-friendly, natural prosody)
+piper-tts==1.2.0
+
+# Voice conversion (colors Piper's output with your cloned voice)
+# NOTE: RVC inference package APIs move fast. If `rvc-python` on PyPI has
+# changed its interface since this was written, adjust ONLY
+# app/voice_convert.py -- everything else in this backend is written
+# against that one adapter, not against the library directly.
+rvc-python==0.1.11
+torch==2.4.1
+torchaudio==2.4.1
+soundfile==0.12.1
+numpy==1.26.4

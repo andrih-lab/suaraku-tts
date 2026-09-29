@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Suaraku TTS</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="card">
+    <h1>Suaraku TTS</h1>
+    <p class="subtitle">Ubah teks jadi suara dengan warna suara Anda sendiri.</p>
+
+    <label for="text">Teks</label>
+    <textarea id="text" rows="6" maxlength="1000"
+      placeholder="Tulis kalimat dalam Bahasa Indonesia atau English di sini..."></textarea>
+    <div class="charcount"><span id="charcount">0</span>/1000</div>
+
+    <div class="row">
+      <div>
+        <label for="language">Bahasa</label>
+        <select id="language">
+          <option value="id">Bahasa Indonesia</option>
+          <option value="en">English</option>
+        </select>
+      </div>
+      <div class="checkbox-row">
+        <label>
+          <input type="checkbox" id="cloneVoice" checked />
+          Pakai suara saya (kloning)
+        </label>
+      </div>
+    </div>
+
+    <button id="generate">Buat Suara</button>
+    <p id="status" class="status"></p>
+
+    <audio id="player" controls style="display:none;"></audio>
+    <a id="download" style="display:none;" download="suaraku-tts.wav">Unduh audio (.wav)</a>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
