@@ -12,7 +12,7 @@ piper-tts==1.2.0
 # changed its interface since this was written, adjust ONLY
 # app/voice_convert.py -- everything else in this backend is written
 # against that one adapter, not against the library directly.
-rvc-python==0.1.11
+rvc-python==0.1.5
 torch==2.4.1
 torchaudio==2.4.1
 soundfile==0.12.1
