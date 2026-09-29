@@ -15,5 +15,6 @@ piper-tts==1.2.0
 rvc-python==0.1.5
 torch==2.4.1
 torchaudio==2.4.1
-soundfile==0.12.1
-numpy==1.26.4
+# numpy/soundfile are not imported directly by this backend -- left
+# unpinned so pip resolves versions compatible with rvc-python's own
+# constraint (it requires numpy<=1.23.5).
