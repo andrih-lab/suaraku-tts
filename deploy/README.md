@@ -12,8 +12,11 @@ Kalau Anda tidak familiar dengan Linux/SSH, pakai jalur ini:
    browser, tidak perlu install apa pun). Kalau tidak tahu/lupa password
    root, pakai dulu tombol **Ganti Password VPS** di panel yang sama.
 2. Login di jendela VNC sebagai `root` dengan password tersebut.
-3. Copy seluruh isi file [`deploy/one-shot-install.sh`](./one-shot-install.sh)
-   dari repo ini, paste ke terminal VNC, lalu tekan Enter.
+3. Di terminal VNC itu, ketik/paste satu baris ini lalu Enter:
+
+   ```bash
+   curl -fsSL https://raw.githubusercontent.com/andrih-lab/suaraku-tts/main/deploy/one-shot-install.sh | bash
+   ```
 4. Tunggu sampai selesai (build Docker pertama kali bisa 10-15 menit).
    Skrip ini otomatis: install Docker, siapkan swap, ambil aplikasi,
    unduh suara dasar (ID+EN), jalankan aplikasi, dan pasang Nginx + HTTPS
