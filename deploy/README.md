@@ -3,7 +3,47 @@
 Panduan ini untuk VPS spek: 4 vCPU, 4GB RAM, 30GB storage, AlmaLinux 10,
 tanpa GPU.
 
-## 1. Setup awal server (sekali saja)
+## Cara termudah: satu skrip, tanpa perlu paham Linux
+
+Kalau Anda tidak familiar dengan Linux/SSH, pakai jalur ini:
+
+1. Login ke panel VPS Anda (mis. `manage.plasawebhost.com/clientarea.php`),
+   buka detail VPS Anda, lalu buka **VNC Console** (terminal langsung di
+   browser, tidak perlu install apa pun). Kalau tidak tahu/lupa password
+   root, pakai dulu tombol **Ganti Password VPS** di panel yang sama.
+2. Login di jendela VNC sebagai `root` dengan password tersebut.
+3. Copy seluruh isi file [`deploy/one-shot-install.sh`](./one-shot-install.sh)
+   dari repo ini, paste ke terminal VNC, lalu tekan Enter.
+4. Tunggu sampai selesai (build Docker pertama kali bisa 10-15 menit).
+   Skrip ini otomatis: install Docker, siapkan swap, ambil aplikasi,
+   unduh suara dasar (ID+EN), jalankan aplikasi, dan pasang Nginx + HTTPS
+   untuk `suara.andrihendrizal.com` (kalau DNS-nya sudah mengarah ke VPS
+   ini -- lihat bagian DNS di bawah).
+5. Kalau di akhir skrip muncul pesan DNS belum mengarah ke server ini,
+   perbaiki dulu DNS-nya (lihat di bawah), tunggu 5-30 menit, lalu jalankan
+   ulang baris `certbot ...` yang ditampilkan skrip.
+
+### Arahkan suara.andrihendrizal.com ke VPS ini (DNS di Netlify)
+
+1. Buka dashboard Netlify → **Domains** (atau **Team → DNS**) → pilih
+   `andrihendrizal.com` → tab **DNS records**.
+2. Cari record untuk `suara` (subdomain yang sudah Anda buat). Hapus kalau
+   isinya mengarah ke Netlify (mis. CNAME ke `*.netlify.app`).
+3. Tambah record baru:
+   - **Type**: `A`
+   - **Name**: `suara`
+   - **Value**: `103.151.140.152` (IP VPS Anda)
+   - **TTL**: biarkan default
+4. Simpan. Propagasi biasanya 5-30 menit (kadang sampai beberapa jam).
+   Cek dengan `nslookup suara.andrihendrizal.com` dari komputer mana pun.
+
+Setelah langkah-langkah di atas, cukup buka `https://suara.andrihendrizal.com`.
+
+---
+
+## Cara manual (kalau familiar dengan SSH/terminal)
+
+### 1. Setup awal server (sekali saja)
 
 SSH ke VPS Anda, lalu:
 
@@ -16,7 +56,7 @@ chmod +x deploy/setup-almalinux.sh
 
 Log out lalu SSH masuk lagi (supaya keanggotaan grup `docker` aktif).
 
-## 2. Siapkan model suara
+### 2. Siapkan model suara
 
 Di server, buat folder model:
 
@@ -48,7 +88,7 @@ Tanpa file ini, aplikasi tetap jalan tapi hanya mengeluarkan suara Piper
 generik (belum mirip suara Anda) — berguna untuk tes awal bahwa server
 sudah jalan dengan benar.
 
-## 3. Jalankan aplikasi
+### 3. Jalankan aplikasi
 
 ```bash
 cd ~/suaraku-tts/deploy
@@ -69,7 +109,7 @@ terpasang) `"rvc_model_loaded": true`.
 
 Buka `http://IP_VPS_ANDA:8000` di browser untuk memakai aplikasinya.
 
-## 4. (Opsional tapi disarankan) Nginx + domain + HTTPS
+### 4. (Opsional tapi disarankan) Nginx + domain + HTTPS
 
 Mengekspos port 8000 langsung ke internet tanpa HTTPS berarti teks dan
 audio Anda dikirim tanpa enkripsi. Kalau Anda punya domain, pasang Nginx
