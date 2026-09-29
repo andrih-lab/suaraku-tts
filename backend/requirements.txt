@@ -7,14 +7,6 @@ python-multipart==0.0.19
 # Base multilingual TTS (fast, CPU-friendly, natural prosody)
 piper-tts==1.2.0
 
-# Voice conversion (colors Piper's output with your cloned voice)
-# NOTE: RVC inference package APIs move fast. If `rvc-python` on PyPI has
-# changed its interface since this was written, adjust ONLY
-# app/voice_convert.py -- everything else in this backend is written
-# against that one adapter, not against the library directly.
-rvc-python==0.1.5
-torch==2.4.1
-torchaudio==2.4.1
-# numpy/soundfile are not imported directly by this backend -- left
-# unpinned so pip resolves versions compatible with rvc-python's own
-# constraint (it requires numpy<=1.23.5).
+# Voice conversion itself (Applio, cloned + installed separately in the
+# Dockerfile) is not a Python import here -- app/voice_convert.py calls its
+# `core.py infer` CLI as a subprocess. See docs/ARCHITECTURE.md.

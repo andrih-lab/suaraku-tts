@@ -17,7 +17,8 @@ Kalau Anda tidak familiar dengan Linux/SSH, pakai jalur ini:
    ```bash
    curl -fsSL https://raw.githubusercontent.com/andrih-lab/suaraku-tts/main/deploy/one-shot-install.sh | bash
    ```
-4. Tunggu sampai selesai (build Docker pertama kali bisa 10-15 menit).
+4. Tunggu sampai selesai (build Docker pertama kali bisa 20-30 menit --
+   mesin voice conversion-nya cukup besar).
    Skrip ini otomatis: install Docker, siapkan swap, ambil aplikasi,
    unduh suara dasar (ID+EN), jalankan aplikasi, dan pasang Nginx + HTTPS
    untuk `suara.andrihendrizal.com` (kalau DNS-nya sudah mengarah ke VPS
@@ -99,7 +100,7 @@ docker compose up -d --build
 ```
 
 Build pertama kali akan memakan waktu (mengunduh image Python + PyTorch
-CPU + dependensi) — bisa 5-15 menit tergantung koneksi VPS.
+CPU + Applio + dependensinya) — bisa 20-30 menit tergantung koneksi VPS.
 
 Cek statusnya:
 

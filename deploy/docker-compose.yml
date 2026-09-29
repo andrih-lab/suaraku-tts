@@ -11,7 +11,7 @@ services:
     environment:
       - MODELS_DIR=/app/models
       - RVC_PITCH_SHIFT=${RVC_PITCH_SHIFT:-0}
-    # Keep the container from eating the whole 4GB VPS if something leaks.
-    # (mem_limit, not deploy.resources.limits -- the latter only applies
-    # under `docker stack deploy` / Swarm, not plain `docker compose up`.)
-    mem_limit: 3g
+    # No hard mem_limit: voice conversion (Applio/torch) can use several GB
+    # during inference. With the 4GB swap set up by setup-almalinux.sh, it's
+    # safer to let it spill into swap (slower) than be OOM-killed mid-request
+    # by a strict container limit.
